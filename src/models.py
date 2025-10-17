@@ -53,8 +53,19 @@ class MLP:
     def loss(self, x: cp.ndarray) -> cp.float:
         return cp.mean(-cp.log(cp.clip(x, 1e-10, 1.0)))
 
-    # def save_weights(self):
-    # def load_weights(self, model ):
+    def save_weights(self, weights_file: str):
+        weights = []
+        for layer in self.layers:
+            if isinstance(layer, Linear):
+                weights.append((layer.weights, layer.bias))
+        np.savez(weights_file, *weights)
+
+    def load_weights(self, model, weights_file: str):
+        weights = np.load(weights_file)
+        for layer, (w, b) in zip(model.layers, weights):
+            if isinstance(layer, Linear):
+                layer.weights = w
+                layer.bias = b
 
 
 class Layer:
