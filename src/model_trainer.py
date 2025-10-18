@@ -1,8 +1,7 @@
-import numpy as np
-import pandas as pd
+# import numpy as cp
 import cupy as cp
 from tqdm import tqdm
-from src.models import MLP
+from models import MLP
 
 
 class MLPTrainer:
@@ -15,8 +14,8 @@ class MLPTrainer:
         batch_size: int = 256,
         k_folds: int = 10,
     ):
-        self.input_dim = X_data.shape[1]
-        self.output_dim = len(np.unique(y_data))
+        self.input_dim = X_data.shape[1] * X_data.shape[2]
+        self.output_dim = len(cp.unique(y_data))
         self.model = MLP(
             batch_size,
             self.input_dim,
@@ -57,9 +56,10 @@ class MLPTrainer:
                 batch_data_y = y_trained_shuffled[batch_start:batch_end]
                 batch_length = batch_end - batch_start
 
-                # (28,28, n) -> (n, 768)
-                # labels -> (47, batch_size)
-                X_batch = batch_data_X.reshape(batch_length, 1).T.astype(cp.float32)
+                # (batch_length, 28, 28) -> (batch_length, 784) -> (784, batch_length)
+                # labels -> (output_dim, batch_length)
+                # TODO: The data should be linearized before training
+                X_batch = batch_data_X.reshape(batch_length, -1).T.astype(cp.float32)
                 y_batch = cp.zeros((self.output_dim, batch_length), dtype=cp.float32)
                 y_batch[batch_data_y.astype(int), cp.arange(batch_length)] = 1.0
 
@@ -71,22 +71,22 @@ class MLPTrainer:
                 )
                 epoch_loss += loss * batch_length  # Accumulate weighted loss
                 # loss = self.model.loss(outputs, y_batch)
-                # Avreage accuracy
-                batch_correct = cp.sum(cp.argmax(loss, axis=0) == batch_data_y)
+                # Average accuracy
+                batch_correct = cp.sum(cp.argmax(outputs, axis=0) == batch_data_y)
                 epoch_correct += batch_correct
                 # Backward pass
-                self.model.backward(outputs, y_batch)
+                self.model.backward(y_batch)
                 self.model.update_weights(learning_rate=0.001)
 
-                if (batch + 1) % 100 == 0:
-                    print(
-                        f"Batch {batch+1}/{n_batches}, Loss: {float(loss):.4f}, Accuracy: {float(batch_correct) / ((batch + 1) * batch_size):.4f}"
-                    )
+                # if (batch + 1) % 100 == 0:
+                #    print(
+                #        f"Batch {batch+1}/{n_batches}, Loss: {float(loss):.4f}, Accuracy: {float(batch_correct) / ((batch + 1) * batch_size):.4f}"
+                #    )
 
             avg_loss = epoch_loss / n_samples
             accuracy = float(epoch_correct) / n_samples * 100
-            print(
-                f"Epoch {epoch+1}/{self.epochs}, Avg Loss: {avg_loss:.6f}, Accuracy: {accuracy:.2f}%,"
+            tqdm.write(
+                f"Epoch {epoch+1}/{self.epochs}, Avg Loss: {avg_loss:.6f}, Accuracy: {accuracy:.2f}%"
             )
         self.model.save_weights("weights.npz")
 
