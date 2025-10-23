@@ -55,15 +55,22 @@ class MLP:
         weights = []
         for layer in self.layers:
             if isinstance(layer, Linear):
-                weights.append((layer.weights, layer.bias))
+                weights.append(layer.weights.get())
+                weights.append(layer.bias.get())
         cp.savez(weights_file, *weights)
 
     def load_weights(self, model, weights_file: str):
         weights = cp.load(weights_file)
-        for layer, (w, b) in zip(model.layers, weights):
+        linear_layer_idx = 0
+        for layer in model.layers:
             if isinstance(layer, Linear):
-                layer.weights = w
-                layer.bias = b
+                w, b = (
+                    weights[f"arr_{linear_layer_idx*2}"],
+                    weights[f"arr_{linear_layer_idx*2+1}"],
+                )
+                layer.weights = cp.asarray(w)
+                layer.bias = cp.asarray(b)
+                linear_layer_idx += 1
 
 
 class Layer:
@@ -81,9 +88,10 @@ class Linear(Layer):
         self.batch_size = batch_size
 
         # TODO: Merge bias as Weight 0
+        # He initialization for ReLU networks -> https://arxiv.org/pdf/1502.01852.pdf
         self.weights = cp.random.randn(output_dim, input_dim).astype(
             cp.float32
-        ) * cp.sqrt(2.0 / (input_dim + output_dim))
+        ) * cp.sqrt(2.0 / input_dim)
         # Bias as a column vector [output_dim, 1] -> broadcasted during addition
         self.bias = cp.zeros((output_dim, 1), dtype=cp.float32)
 
@@ -102,9 +110,11 @@ class Linear(Layer):
     def backward(self, prev_grad: cp.ndarray) -> cp.ndarray:
         # prev_grad: (output_dim, batch_size), input: (input_dim, batch_size)
         # Weights: DL/DZ3 * (a^i-1)^T
-        self.grad_weights = prev_grad @ self.input.T  # (output_dim, input_dim)
+        self.grad_weights = (
+            prev_grad @ self.input.T
+        ) / self.batch_size  # (output_dim, input_dim)
         # Bias gradient is the sum over the batch dimension -> (output_dim, 1)
-        self.grad_bias = cp.sum(prev_grad, axis=1, keepdims=True)
+        self.grad_bias = cp.sum(prev_grad, axis=1, keepdims=True) / self.batch_size
 
         # TODO: Why w.T * prev_grad and not w * prev_grad?
         return self.weights.T @ prev_grad

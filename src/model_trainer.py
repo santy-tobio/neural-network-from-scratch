@@ -40,6 +40,9 @@ class MLPTrainer:
         sample_indices = cp.arange(n_samples)  # List of indices
 
         for epoch in tqdm(range(self.epochs)):
+            # TODO: Learning rate decay
+            # Example: lr = 0.005 * (0.98 ** (epoch // 3))
+
             # Fisher-Yates shuffle data
             cp.random.shuffle(sample_indices)
             X_trained_shuffled = X_train[sample_indices]
@@ -59,21 +62,22 @@ class MLPTrainer:
                 # (batch_length, 28, 28) -> (batch_length, 784) -> (784, batch_length)
                 # labels -> (output_dim, batch_length)
                 # TODO: The data should be linearized before training
-                X_batch = batch_data_X.reshape(batch_length, -1).T.astype(cp.float32)
+                X_batch = (
+                    batch_data_X.reshape(batch_length, -1).T.astype(cp.float32) / 255.0
+                )  # Normalize to [0,1]
                 y_batch = cp.zeros((self.output_dim, batch_length), dtype=cp.float32)
                 y_batch[batch_data_y.astype(int), cp.arange(batch_length)] = 1.0
 
                 # Forward pass
                 outputs = self.model.forward(X_batch)
-                # Compute loss
-                loss = cp.clip(
-                    -cp.sum(y_batch * cp.log(outputs + 1e-8)) / batch_length, 0, 1e8
-                )
-                epoch_loss += loss * batch_length  # Accumulate weighted loss
-                # loss = self.model.loss(outputs, y_batch)
+
+                # Compute cross-entropy loss
+                loss = -cp.sum(y_batch * cp.log(outputs + 1e-8)) / batch_length
+                epoch_loss += loss * batch_length  # Accumulate loss
                 # Average accuracy
                 batch_correct = cp.sum(cp.argmax(outputs, axis=0) == batch_data_y)
                 epoch_correct += batch_correct
+
                 # Backward pass
                 self.model.backward(y_batch)
                 self.model.update_weights(learning_rate=0.001)
@@ -94,5 +98,7 @@ class MLPTrainer:
 if __name__ == "__main__":
     X_images = cp.load("data/X_images.npy")
     y_images = cp.load("data/y_images.npy")
-    trainer = MLPTrainer(X_images, y_images, epochs=10)
+    trainer = MLPTrainer(
+        X_images[:], y_images[:], epochs=50
+    )
     trainer.train(X_images, y_images)
