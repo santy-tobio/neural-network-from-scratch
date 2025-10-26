@@ -20,9 +20,7 @@ def main():
     dataset = Dataset(
         X_path="data/X_images.npy",
         y_path="data/y_images.npy",
-        dev_ratio=0.7,
-        val_ratio=0.15,
-        test_ratio=0.15,
+        dev_ratio=0.85,  # 85% for dev (train+val), 15% for test
         normalize=True,
         random_seed=42,
     )

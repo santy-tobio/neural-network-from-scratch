@@ -1,8 +1,8 @@
 """Visualization utilities for plotting results with proper type hints."""
 
 from pathlib import Path
-from typing import Any
 
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -123,8 +123,8 @@ def plot_confusion_matrix(
 
 
 def visualize_sample_images(
-    X_images: NDArray[np.float_],
-    y_images: NDArray[np.int_],
+    X_images: NDArray[np.floating],
+    y_images: NDArray[np.integer],
     num_samples: int = 3,
     figsize: tuple[int, int] = (12, 4),
     image_shape: tuple[int, int] = (28, 28),
@@ -143,15 +143,9 @@ def visualize_sample_images(
 
     for i in range(num_samples):
         # Reshape if needed
-        if X_images[i].ndim == 1:
-            img = X_images[i].reshape(image_shape)
-        else:
-            img = X_images[i]
+        img = X_images[i].reshape(image_shape) if X_images[i].ndim == 1 else X_images[i]
 
-        if num_samples == 1:
-            ax = axes
-        else:
-            ax = axes[i]
+        ax = axes if num_samples == 1 else axes[i]
 
         ax.imshow(img, cmap="gray")
         ax.set_title(f"Sample {i+1}\nClass: {y_images[i]}")
@@ -173,7 +167,7 @@ def visualize_sample_images(
 
 def plot_model_comparison(
     results: dict[str, dict[str, float]],
-    metrics: list[str] = ["accuracy", "f1_macro"],
+    metrics: list[str],
     save_path: str | Path | None = None,
     figsize: tuple[int, int] = (10, 6),
     show: bool = True,
@@ -203,10 +197,10 @@ def plot_model_comparison(
         bars = ax.bar(range(len(model_names)), values, alpha=0.8)
 
         # Color bars by performance
-        colors = plt.cm.RdYlGn(
+        colors = cm.RdYlGn(
             np.array(values) / max(values) if max(values) > 0 else [0.5] * len(values)
         )
-        for bar, color in zip(bars, colors):
+        for bar, color in zip(bars, colors, strict=False):
             bar.set_color(color)
 
         ax.set_xticks(range(len(model_names)))
@@ -216,7 +210,7 @@ def plot_model_comparison(
         ax.grid(True, alpha=0.3, axis="y")
 
         # Add value labels on bars
-        for i, (bar, value) in enumerate(zip(bars, values)):
+        for _, (bar, value) in enumerate(zip(bars, values, strict=False)):
             height = bar.get_height()
             ax.text(
                 bar.get_x() + bar.get_width() / 2.0,

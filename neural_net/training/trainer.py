@@ -1,5 +1,6 @@
+from collections.abc import Callable
+
 import cupy as cp
-from typing import Callable
 
 
 class Trainer:
@@ -29,7 +30,7 @@ class Trainer:
         self.early_stopping = early_stopping
 
         # Training history
-        self.history = {
+        self.history: dict[str, list[float]] = {
             "train_loss": [],
             "train_metric": [],
             "val_loss": [],
@@ -137,11 +138,13 @@ class Trainer:
                 self.lr_scheduler.step(epoch)
 
             # Check early stopping
-            if self.early_stopping:
-                if self.early_stopping.should_stop(val_loss):
-                    if verbose:
-                        print(f"Early stopping at epoch {epoch+1}")
-                    break
+            if (
+                self.early_stopping
+                and self.early_stopping.should_stop(val_loss)
+                and verbose
+            ):
+                print(f"Early stopping at epoch {epoch+1}")
+                break
 
             # Store history
             self.history["train_loss"].append(train_loss)

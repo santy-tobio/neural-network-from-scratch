@@ -1,6 +1,7 @@
+from enum import Enum
+
 import cupy as cp
 import numpy as np
-from enum import Enum
 from numpy.typing import NDArray
 
 
@@ -15,7 +16,7 @@ def _weighted_average(values: list[float], weights: list[float] | None = None) -
         return _macro_average(values)
     total_weight = sum(weights)
     if total_weight > 0:
-        return sum(v * w for v, w in zip(values, weights)) / total_weight
+        return sum(v * w for v, w in zip(values, weights, strict=False)) / total_weight
     return 0.0
 
 
@@ -137,7 +138,7 @@ def compute_metrics(
     """Compute multiple classification metrics at once."""
     metrics: dict[str, float | NDArray[np.int32]] = {
         "accuracy": accuracy(y_true, y_pred),
-        "f1_macro": f1_score(y_true, y_pred, average="macro"),
+        "f1_macro": f1_score(y_true, y_pred, average=AverageStrategy.MACRO),
     }
 
     if include_confusion_matrix:

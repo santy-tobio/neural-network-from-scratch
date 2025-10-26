@@ -88,7 +88,7 @@ class ExperimentLogger:
             return []
 
         logs: list[dict[str, Any]] = []
-        with open(self.log_file, "r", encoding="utf-8") as f:
+        with open(self.log_file, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:

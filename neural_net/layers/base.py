@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+
 import cupy as cp
 
 
 class Layer(ABC):
     """Base class for all layers"""
 
-    def __init__(self, input_dim: int = None, output_dim: int = None):
+    def __init__(self, input_dim: int | None = None, output_dim: int | None = None):
         self.input_dim = input_dim
         self.output_dim = output_dim
 

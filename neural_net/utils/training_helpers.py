@@ -1,7 +1,4 @@
 import cupy as cp
-from typing import Callable
-
-from ..evaluation.metrics import accuracy, cross_entropy
 
 
 def prepare_classification_batch(

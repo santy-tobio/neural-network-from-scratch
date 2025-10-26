@@ -2,6 +2,8 @@ import cupy as cp
 
 from neural_net import create_training_components
 from neural_net.evaluation import evaluate_model
+from neural_net.evaluation.metrics import accuracy, cross_entropy
+from neural_net.utils.training_helpers import prepare_classification_batch
 
 from .configs.base import ExperimentConfig
 
@@ -19,7 +21,7 @@ class Experiment:
         cp.random.seed(config.training.random_seed)
 
         # Components will be created in build()
-        self.components = None
+        self.components: dict | None = None
         self.model = None
         self.trainer = None
 
@@ -29,12 +31,18 @@ class Experiment:
         input_dim = self.dataset.X_devel.shape[1]
         output_dim = len(cp.unique(self.dataset.y_devel))
 
+        def prepare_batch(X_raw, y_raw):
+            return prepare_classification_batch(X_raw, y_raw, output_dim)
+
         # Create all components using the factory
         self.components = create_training_components(
             model_config=self.config.model,
             training_config=self.config.training,
             input_dim=input_dim,
             output_dim=output_dim,
+            loss_fn=cross_entropy,
+            metric_fn=accuracy,
+            prepare_batch_fn=prepare_batch,
         )
 
         # Extract commonly used components
@@ -50,6 +58,11 @@ class Experiment:
 
         # Build all components
         self.build()
+
+        # Ensure components are built
+        assert self.components is not None
+        assert self.model is not None
+        assert self.trainer is not None
 
         # Get data (updated for dev/test split)
         X_train, y_train = self.dataset.get_devel()

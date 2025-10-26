@@ -1,4 +1,5 @@
 import os
+
 import cupy as cp
 
 
@@ -58,7 +59,7 @@ class Dataset:
         print(f"  Test: {len(self.X_test)} samples")
 
     def _random_split(
-        self, devel_ratio: int, random_seed: int
+        self, devel_ratio: float, random_seed: int
     ) -> tuple[cp.ndarray, cp.ndarray]:
         """
         Perform random split of data.
@@ -75,7 +76,7 @@ class Dataset:
         return devel_idx, test_idx
 
     def _stratified_split(
-        self, devel_ratio: int, random_seed: int
+        self, devel_ratio: float, random_seed: int
     ) -> tuple[cp.ndarray, cp.ndarray]:
         """
         Perform stratified split of data (maintains class distribution).

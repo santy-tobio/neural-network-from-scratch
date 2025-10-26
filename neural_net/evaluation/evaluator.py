@@ -33,7 +33,7 @@ def compare_models(results: dict[str, dict[str, float]]) -> None:
     print("=" * 70)
 
     # Determine which metrics are available
-    all_metrics = set()
+    all_metrics: set[str] = set()
     for metrics in results.values():
         all_metrics.update(metrics.keys())
     all_metrics.discard("confusion_matrix")  # Don't print in comparison
@@ -66,4 +66,4 @@ def create_results_dict(
     """
     Convert a list of (model_name, metrics) tuples to a results dictionary.
     """
-    return {name: metrics for name, metrics in model_evaluations}
+    return dict(model_evaluations)

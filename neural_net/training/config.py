@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 
+from ..optimizers import OptimizerConfig
 from . import SchedulerType
 
 
@@ -105,7 +108,7 @@ class TrainingConfig:
     verbose: int = 1  # 0: silent, 1: progress bar, 2: detailed
 
     # Component configurations (imported from other modules)
-    optimizer: "OptimizerConfig" = field(default_factory=lambda: None)  # type: ignore
+    optimizer: OptimizerConfig = field(default_factory=lambda: None)  # type: ignore
     scheduler: SchedulerConfig | None = None
     regularizer: RegularizerConfig = field(default_factory=RegularizerConfig)
     early_stopping: EarlyStoppingConfig = field(default_factory=EarlyStoppingConfig)

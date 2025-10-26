@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Any
+
 import cupy as cp
 from numpy.typing import NDArray
 
@@ -18,9 +20,9 @@ def evaluate_with_noise(
     noise_levels: list[float],
     noise_type: NoiseType = NoiseType.GAUSSIAN,
     clip_range: tuple[float, float] = (0.0, 1.0),
-) -> dict[float, dict[str, float]]:
+) -> dict[float, dict[str, Any]]:
     """Evaluate model robustness to input noise."""
-    results = {}
+    results: dict[float, dict[str, Any]] = {}
 
     for noise_std in noise_levels:
         # Add noise based on type

@@ -1,10 +1,10 @@
 from enum import Enum
 
 from .base import Layer
+from .ce_softmax import CESoftmax
 from .dropout import Dropout
 from .linear import Linear
 from .relu import Relu
-from .ce_softmax import CESoftmax
 
 __all__ = ["Layer", "Linear", "Relu", "CESoftmax", "Dropout", "LayerType"]
 

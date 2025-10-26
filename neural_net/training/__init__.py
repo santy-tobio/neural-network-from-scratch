@@ -39,9 +39,6 @@ __all__ = [
 
 from .lr_schedulers import (
     CosineAnnealingScheduler,
-    ExponentialScheduler,
-    LinearScheduler,
-    LRScheduler,
     StepScheduler,
 )
 

@@ -1,4 +1,5 @@
 import cupy as cp
+
 from .base import BaseOptimizer
 
 
@@ -8,7 +9,7 @@ class SGD(BaseOptimizer):
     def __init__(self, learning_rate: float, momentum: float = 0.0):
         super().__init__(learning_rate)
         self.momentum = momentum
-        self.velocity = None  # Will store momentum buffers
+        self.velocity: list[tuple[cp.ndarray, cp.ndarray]] | None = None
 
     @classmethod
     def from_config(cls, config):
@@ -29,7 +30,7 @@ class SGD(BaseOptimizer):
 
         updates = []
 
-        if self.momentum > 0:
+        if self.momentum > 0 and self.velocity is not None:
             for i, (grad_w, grad_b) in enumerate(gradients):
                 v_w, v_b = self.velocity[i]
 

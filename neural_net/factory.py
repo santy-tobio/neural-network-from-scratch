@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from .models import ModelConfig, create_mlp
 from .optimizers import create_optimizer
 from .training import (
@@ -14,6 +16,9 @@ def create_training_components(
     training_config: TrainingConfig,
     input_dim: int,
     output_dim: int,
+    loss_fn: Callable,
+    metric_fn: Callable,
+    prepare_batch_fn: Callable,
 ) -> dict:
     """
     Create all training components from configurations.
@@ -55,6 +60,9 @@ def create_training_components(
     trainer = Trainer(
         model=model,
         optimizer=optimizer,
+        loss_fn=loss_fn,
+        metric_fn=metric_fn,
+        prepare_batch_fn=prepare_batch_fn,
         lr_scheduler=scheduler,
         regularizer=regularizer,
         early_stopping=early_stopping,

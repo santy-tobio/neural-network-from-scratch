@@ -1,4 +1,5 @@
 from collections.abc import Generator
+
 import cupy as cp
 
 
@@ -68,7 +69,7 @@ class KFoldSplitter:
         unique_classes = cp.unique(y)
 
         # Initialize fold lists
-        fold_indices = [[] for _ in range(self.n_splits)]
+        fold_indices: list[list] = [[] for _ in range(self.n_splits)]
 
         # For each class, distribute samples across folds
         for cls in unique_classes:

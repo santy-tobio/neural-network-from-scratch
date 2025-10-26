@@ -1,5 +1,6 @@
 import cupy as cp
-from ..layers import Dropout, LayerType, Linear
+
+from ..layers import Dropout, Layer, LayerType, Linear
 from .base import BaseMLP
 
 
@@ -21,7 +22,7 @@ class MLP(BaseMLP):
     ):
         super().__init__(input_dim, output_dim, hidden_layers)
 
-        self.layers = []
+        self.layers: list[Layer] = []
 
         # Build hidden layers: [input_dim] + hidden_layers
         layer_sizes = [input_dim] + hidden_layers
@@ -29,7 +30,7 @@ class MLP(BaseMLP):
         # Add hidden layers with activation
         for i in range(len(layer_sizes) - 1):
             self.layers.append(Linear(layer_sizes[i], layer_sizes[i + 1]))
-            self.layers.append(self._create_activation_layer(activation))
+            self.layers.append(activation.value())
 
             # Add dropout after activation if specified
             if dropout_rate is not None:
