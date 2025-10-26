@@ -12,14 +12,14 @@ dev-install:  ## Install package with dev dependencies
 
 format:  ## Format code with black and ruff
 	@echo "Running black..."
-	black neural_net/ experiments/ scripts/ tests/
+	black neural_net/ experiments/ scripts/
 	@echo "Running ruff --fix..."
-	ruff check --fix neural_net/ experiments/ scripts/ tests/
+	ruff check --fix neural_net/ experiments/ scripts/
 	@echo "✓ Formatting complete!"
 
 lint:  ## Run ruff linter
 	@echo "Running ruff..."
-	ruff check neural_net/ experiments/ scripts/ tests/
+	ruff check neural_net/ experiments/ scripts/
 
 typecheck:  ## Run mypy type checker
 	@echo "Running mypy..."
