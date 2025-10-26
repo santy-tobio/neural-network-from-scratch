@@ -6,6 +6,7 @@ Usage:
     python src/run_experiments.py --experiment M1
     python src/run_experiments.py --all
 """
+
 import argparse
 from dataHandler import Dataset
 from experiments import Experiment
@@ -14,22 +15,25 @@ from utils import ExperimentLogger, plot_training_history
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Run MLP experiments')
-    parser.add_argument('--experiment', type=str, default='M0',
-                       help='Experiment to run (M0, M1, M2, M3)')
-    parser.add_argument('--all', action='store_true',
-                       help='Run all experiments')
+    parser = argparse.ArgumentParser(description="Run MLP experiments")
+    parser.add_argument(
+        "--experiment",
+        type=str,
+        default="M0",
+        help="Experiment to run (M0, M1, M2, M3)",
+    )
+    parser.add_argument("--all", action="store_true", help="Run all experiments")
     args = parser.parse_args()
 
     # Load dataset (same split for all experiments)
     dataset = Dataset(
-        X_path='data/X_images.npy',
-        y_path='data/y_images.npy',
-        train_ratio=0.7,
+        X_path="data/X_images.npy",
+        y_path="data/y_images.npy",
+        dev_ratio=0.7,
         val_ratio=0.15,
         test_ratio=0.15,
         normalize=True,
-        random_seed=42
+        random_seed=42,
     )
 
     # Logger
@@ -41,7 +45,7 @@ def main():
     else:
         # Map experiment name to config
         config_map = {
-            'M0': M0_CONFIG,
+            "M0": M0_CONFIG,
             # 'M1': M1_CONFIG,
             # 'M2': M2_CONFIG,
             # 'M3': M3_CONFIG,
@@ -58,10 +62,9 @@ def main():
 
         # Plot training history
         plot_training_history(
-            results['history'],
-            save_path=f'results/{config.name}_history.png'
+            results["history"], save_path=f"results/{config.name}_history.png"
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

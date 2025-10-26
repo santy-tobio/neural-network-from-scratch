@@ -1,7 +1,14 @@
 """
 Learning rate schedulers.
 """
+
 from abc import ABC, abstractmethod
+from enum import Enum
+
+
+class SchedulerType(Enum):
+    LINEAR = "linear"
+    EXPONENTIAL = "exponential"
 
 
 class LRScheduler(ABC):
@@ -24,7 +31,9 @@ class LinearScheduler(LRScheduler):
     lr = max(min_lr, initial_lr - decay_rate * epoch)
     """
 
-    def __init__(self, optimizer, initial_lr: float, decay_rate: float, min_lr: float = 1e-6):
+    def __init__(
+        self, optimizer, initial_lr: float, decay_rate: float, min_lr: float = 1e-6
+    ):
         super().__init__(optimizer, initial_lr)
         self.decay_rate = decay_rate
         self.min_lr = min_lr
@@ -48,5 +57,5 @@ class ExponentialScheduler(LRScheduler):
 
     def step(self, epoch: int):
         """Update learning rate exponentially"""
-        new_lr = self.initial_lr * (self.gamma ** epoch)
+        new_lr = self.initial_lr * (self.gamma**epoch)
         self.optimizer.learning_rate = new_lr
