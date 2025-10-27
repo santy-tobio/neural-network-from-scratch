@@ -1,16 +1,12 @@
-"""Visualization utilities for plotting results with proper type hints."""
-
 from pathlib import Path
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+from matplotlib.typing import RcStyleType
 import numpy as np
 import seaborn as sns
 from matplotlib.figure import Figure
 from numpy.typing import NDArray
-
-# Get style file path (one directory up from src/)
-STYLE_PATH = Path(__file__).parent.parent.parent / "figs.mplstyle"
 
 
 def plot_training_history(
@@ -18,13 +14,14 @@ def plot_training_history(
     save_path: str | Path | None = None,
     figsize: tuple[int, int] = (12, 4),
     show: bool = True,
+    style: RcStyleType | None = None,
 ) -> Figure:
     """
     Plot training and validation loss/accuracy.
     """
     # Use custom style if available
-    if STYLE_PATH.exists():
-        plt.style.use(str(STYLE_PATH))
+    if style:
+        plt.style.use(style)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
 
@@ -82,13 +79,14 @@ def plot_confusion_matrix(
     save_path: str | Path | None = None,
     figsize: tuple[int, int] = (10, 8),
     show: bool = True,
+    style: RcStyleType | None = None,
 ) -> Figure:
     """
     Plot confusion matrix as a heatmap.
     """
     # Use custom style if available
-    if STYLE_PATH.exists():
-        plt.style.use(str(STYLE_PATH))
+    if style:
+        plt.style.use(style)
 
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -130,14 +128,15 @@ def visualize_sample_images(
     image_shape: tuple[int, int] = (28, 28),
     save_path: str | Path | None = None,
     show: bool = True,
+    style: RcStyleType | None = None,
 ) -> Figure:
     """
     Visualize sample images from the dataset.
 
     """
     # Use custom style if available
-    if STYLE_PATH.exists():
-        plt.style.use(str(STYLE_PATH))
+    if style:
+        plt.style.use(style)
 
     fig, axes = plt.subplots(1, num_samples, figsize=figsize)
 
@@ -171,14 +170,15 @@ def plot_model_comparison(
     save_path: str | Path | None = None,
     figsize: tuple[int, int] = (10, 6),
     show: bool = True,
+    style: RcStyleType | None = None,
 ) -> Figure:
     """
     Plot a bar chart comparing multiple models on different metrics.
 
     """
     # Use custom style if available
-    if STYLE_PATH.exists():
-        plt.style.use(str(STYLE_PATH))
+    if style:
+        plt.style.use(style)
 
     model_names = list(results.keys())
     n_metrics = len(metrics)
@@ -241,14 +241,15 @@ def plot_noise_robustness(
     save_path: str | Path | None = None,
     figsize: tuple[int, int] = (10, 6),
     show: bool = True,
+    style: RcStyleType | None = None,
 ) -> Figure:
     """
     Plot model performance vs noise level.
 
     """
     # Use custom style if available
-    if STYLE_PATH.exists():
-        plt.style.use(str(STYLE_PATH))
+    if style:
+        plt.style.use(style)
 
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -279,3 +280,171 @@ def plot_noise_robustness(
         plt.show()
 
     return fig
+
+
+def plot_one_per_class(
+    X,
+    y,
+    save_path="figures/one_per_class.png",
+    figsize=(16, 12),
+    show: bool = True,
+    style: RcStyleType | None = None,
+):
+    """
+    Visualize one image per class in a grid.
+    """
+    # Use custom style if available
+    if style:
+        plt.style.use(style)
+    plt.rcParams["figure.dpi"] = 300
+
+    # Ensure figures directory exists
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Get unique classes
+    unique_classes = np.unique(y)
+    n_classes = len(unique_classes)
+
+    # Create grid (7x7 = 49, good for 47 classes)
+    n_rows = 7
+    n_cols = 7
+
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
+    axes = axes.flatten()
+
+    # Plot one image per class
+    for idx, class_label in enumerate(unique_classes):
+        # Find first occurrence of this class
+        class_indices = np.where(y == class_label)[0]
+        sample_idx = class_indices[0]
+
+        # Get image
+        img = X[sample_idx].reshape(28, 28)
+
+        # Plot
+        axes[idx].imshow(img, cmap="gray")
+        axes[idx].set_title(f"Class {int(class_label)}", fontsize=8)
+        axes[idx].axis("off")
+
+    # Hide unused subplots
+    for idx in range(n_classes, n_rows * n_cols):
+        axes[idx].axis("off")
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches="tight")
+    print(f"Figure saved to: {save_path}")
+
+    if show:
+        plt.show()
+
+
+def plot_class_distribution(
+    y,
+    save_path="figures/class_distribution.png",
+    figsize=(14, 6),
+    show: bool = True,
+    style: RcStyleType | None = None,
+):
+    """
+    Plot the distribution of classes in the dataset.
+    """
+
+    # Use custom style if available
+    if style:
+        plt.style.use(style)
+    plt.rcParams["figure.dpi"] = 300
+
+    # Ensure figures directory exists
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Count samples per class
+    unique_classes, counts = np.unique(y, return_counts=True)
+
+    # Create bar plot
+    _, ax = plt.subplots(figsize=figsize)
+
+    bars = ax.bar(
+        unique_classes,
+        counts,
+        color="#4165c0",
+        alpha=0.8,
+        edgecolor="black",
+        linewidth=0.5,
+    )
+
+    ax.set_xlabel("Class Label", fontsize=12)
+    ax.set_ylabel("Number of Samples", fontsize=12)
+    ax.set_title("Class Distribution in EMNIST Dataset", fontsize=14)
+    ax.grid(axis="y", alpha=0.3, linestyle="--", linewidth=0.5)
+
+    # Add value labels on bars
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height,
+            f"{int(height)}",
+            ha="center",
+            va="bottom",
+            fontsize=6,
+        )
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches="tight")
+    print(f"Figure saved to: {save_path}")
+    if show:
+        plt.show()
+
+
+def plot_pixel_statistics(
+    X,
+    save_path="figures/pixel_statistics.png",
+    figsize=(12, 5),
+    show: bool = True,
+    style: RcStyleType | None = None,
+):
+    """
+    Plot mean and std of pixel values across the dataset.
+    """
+    import numpy as np
+    from pathlib import Path
+
+    # Use custom style if available
+    if style:
+        plt.style.use(style)
+    plt.rcParams["figure.dpi"] = 300
+
+    # Ensure figures directory exists
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Reshape if needed
+    if X.ndim == 2 and X.shape[1] == 784:
+        X_reshaped = X.reshape(-1, 28, 28)
+    else:
+        X_reshaped = X
+
+    # Compute statistics
+    mean_img = np.mean(X_reshaped, axis=0)
+    std_img = np.std(X_reshaped, axis=0)
+
+    # Create subplots
+    _, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+
+    # Mean
+    im1 = ax1.imshow(mean_img, cmap="viridis")
+    ax1.set_title("Mean Pixel Values", fontsize=12)
+    ax1.axis("off")
+    plt.colorbar(im1, ax=ax1, fraction=0.046, pad=0.04)
+
+    # Std
+    im2 = ax2.imshow(std_img, cmap="viridis")
+    ax2.set_title("Std Pixel Values", fontsize=12)
+    ax2.axis("off")
+    plt.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches="tight")
+    print(f"Figure saved to: {save_path}")
+
+    if show:
+        plt.show()
