@@ -14,3 +14,16 @@ class L2Regularizer:
     def gradient(self, weights: cp.ndarray) -> cp.ndarray:
         """Compute gradient of L2 regularization."""
         return self.lambda_ * weights
+
+    def apply(
+        self, gradients: list[tuple[cp.ndarray, cp.ndarray]], model
+    ) -> list[tuple[cp.ndarray, cp.ndarray]]:
+        """Apply L2 regularization to gradients for each Linear layer in the model."""
+        linear_idx = 0
+        for layer in getattr(model, "layers", []):
+            if hasattr(layer, "weights"):
+                grad_weights, grad_bias = gradients[linear_idx]
+                grad_weights += self.gradient(layer.weights)
+                gradients[linear_idx] = (grad_weights, grad_bias)
+                linear_idx += 1
+        return gradients
