@@ -28,7 +28,7 @@ class ExperimentLogger:
             "timestamp": datetime.now().isoformat(),
             "name": config.name,
             "description": config.description,
-            "config": config.to_dict(),
+            "config": repr(config),
             "results": self._extract_results(results),
         }
 
