@@ -1,6 +1,7 @@
 from collections.abc import Callable
 
 import cupy as cp
+import numpy as np
 
 
 class Trainer:
@@ -38,15 +39,17 @@ class Trainer:
         }
 
     def train_epoch(self, X_train, y_train, batch_size):
-        """Train for one epoch using mini-batch SGD."""
+        """Train for one epoch using mini-batch SGD.
+
+        X_train and y_train should be NumPy arrays (CPU).
+        Only batches are moved to GPU during training.
+        """
         n_samples = X_train.shape[0]
         n_batches = (n_samples + batch_size - 1) // batch_size
-        sample_indices = cp.arange(n_samples)
 
-        # Shuffle data
-        cp.random.shuffle(sample_indices)
-        X_shuffled = X_train[sample_indices]
-        y_shuffled = y_train[sample_indices]
+        # Shuffle indices in CPU
+        sample_indices = np.arange(n_samples)
+        np.random.shuffle(sample_indices)
 
         epoch_loss = 0.0
         all_predictions = []
@@ -56,9 +59,16 @@ class Trainer:
         for batch in range(n_batches):
             batch_start = batch * batch_size
             batch_end = min((batch + 1) * batch_size, n_samples)
-            batch_data_X = X_shuffled[batch_start:batch_end]
-            batch_data_y = y_shuffled[batch_start:batch_end]
+            batch_indices = sample_indices[batch_start:batch_end]
+
+            # Get batch data from CPU
+            batch_data_X_cpu = X_train[batch_indices]
+            batch_data_y_cpu = y_train[batch_indices]
             batch_length = batch_end - batch_start
+
+            # Move batch to GPU
+            batch_data_X = cp.asarray(batch_data_X_cpu)
+            batch_data_y = cp.asarray(batch_data_y_cpu)
 
             # Prepare batch using provided function
             X_batch, y_batch_target = self.prepare_batch_fn(batch_data_X, batch_data_y)
@@ -100,20 +110,56 @@ class Trainer:
 
         return avg_loss, metric
 
-    def validate(self, X_val, y_val):
-        """Validate the model on validation set."""
-        # Prepare data
-        X_batch, _ = self.prepare_batch_fn(X_val, y_val)
+    def validate(self, X_val, y_val, batch_size=2048):
+        """Validate the model on validation set using batched inference.
 
-        # Forward pass
-        outputs = self.model.forward(X_batch)
+        X_val and y_val should be NumPy arrays (CPU).
+        Batches are moved to GPU for validation to avoid OOM errors.
+        """
+        n_samples = X_val.shape[0]
+        n_batches = (n_samples + batch_size - 1) // batch_size
 
-        # Compute metrics using provided functions
-        y_pred = cp.argmax(outputs, axis=0)
-        loss = self.loss_fn(y_val, outputs)
-        metric = self.metric_fn(y_val, y_pred)
+        total_loss = 0.0
+        all_predictions = []
+        all_labels = []
 
-        return loss, metric
+        # Batch validation loop
+        for batch in range(n_batches):
+            batch_start = batch * batch_size
+            batch_end = min((batch + 1) * batch_size, n_samples)
+
+            # Get batch from CPU
+            X_batch_cpu = X_val[batch_start:batch_end]
+            y_batch_cpu = y_val[batch_start:batch_end]
+            batch_length = batch_end - batch_start
+
+            # Move batch to GPU
+            X_batch_gpu = cp.asarray(X_batch_cpu)
+            y_batch_gpu = cp.asarray(y_batch_cpu)
+
+            # Prepare batch
+            X_batch, _ = self.prepare_batch_fn(X_batch_gpu, y_batch_gpu)
+
+            # Forward pass
+            outputs = self.model.forward(X_batch)
+
+            # Compute batch loss
+            batch_loss = self.loss_fn(y_batch_gpu, outputs)
+            total_loss += batch_loss * batch_length
+
+            # Store predictions for metric computation
+            batch_predictions = cp.argmax(outputs, axis=0)
+            all_predictions.append(batch_predictions)
+            all_labels.append(y_batch_gpu)
+
+        # Compute overall metrics
+        all_predictions = cp.concatenate(all_predictions)
+        all_labels = cp.concatenate(all_labels)
+
+        avg_loss = float(total_loss / n_samples)
+        metric = self.metric_fn(all_labels, all_predictions)
+
+        return avg_loss, metric
 
     def train(
         self,
@@ -138,13 +184,10 @@ class Trainer:
                 self.lr_scheduler.step(epoch)
 
             # Check early stopping
-            if (
-                self.early_stopping
-                and self.early_stopping.should_stop(val_loss)
-                and verbose
-            ):
-                print(f"Early stopping at epoch {epoch+1}")
-                break
+            if self.early_stopping and verbose:
+                if self.early_stopping(val_loss):
+                    print(f"Early stopping at epoch {epoch+1}")
+                    break
 
             # Store history
             self.history["train_loss"].append(train_loss)

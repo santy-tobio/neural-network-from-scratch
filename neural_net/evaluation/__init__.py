@@ -8,14 +8,11 @@ from .metrics import (
     f1_score,
     precision_recall_f1,
 )
-from .robustness import NoiseType, evaluate_with_dropout, evaluate_with_noise
 
 __all__ = [
-    # Main evaluation functions
     "evaluate_model",
     "compare_models",
     "create_results_dict",
-    # Metrics
     "compute_metrics",
     "accuracy",
     "cross_entropy",
@@ -23,8 +20,4 @@ __all__ = [
     "f1_score",
     "precision_recall_f1",
     "AverageStrategy",
-    # Robustness analysis
-    "evaluate_with_noise",
-    "evaluate_with_dropout",
-    "NoiseType",
 ]

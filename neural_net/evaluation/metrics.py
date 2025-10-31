@@ -38,18 +38,11 @@ def cross_entropy(
     """Compute cross-entropy loss for multi-class classification."""
     n_samples = y_true.shape[0]
 
-    # Ensure y_pred_proba is (n_classes, n_samples)
     if y_pred_proba.shape[1] != n_samples:
         y_pred_proba = y_pred_proba.T
 
-    # Extract the predicted probability for the true class for each sample
-    # y_pred_proba[y_true[i], i] gives the probability of the correct class for sample i
     true_class_probs = y_pred_proba[y_true, cp.arange(n_samples)]
-
-    # Clip probabilities for numerical stability
     true_class_probs = cp.clip(true_class_probs, epsilon, 1.0 - epsilon)
-
-    # Compute cross-entropy: -mean(log(p_correct))
     loss = -cp.mean(cp.log(true_class_probs))
 
     return float(loss)
@@ -57,14 +50,9 @@ def cross_entropy(
 
 def confusion_matrix(y_true: cp.ndarray, y_pred: cp.ndarray) -> NDArray[np.int32]:
     """Compute confusion matrix."""
-    # Get unique classes from both arrays
     classes = cp.unique(cp.concatenate([y_true, y_pred]))
     n_classes = len(classes)
-
-    # Initialize confusion matrix
     cm = cp.zeros((n_classes, n_classes), dtype=cp.int32)
-
-    # Fill confusion matrix
     for i, true_class in enumerate(classes):
         for j, pred_class in enumerate(classes):
             cm[i, j] = cp.sum((y_true == true_class) & (y_pred == pred_class))
@@ -85,16 +73,13 @@ def precision_recall_f1(
     weights = []
 
     for class_label in classes:
-        # True positives, false positives, false negatives
         tp = float(cp.sum((y_true == class_label) & (y_pred == class_label)))
         fp = float(cp.sum((y_true != class_label) & (y_pred == class_label)))
         fn = float(cp.sum((y_true == class_label) & (y_pred != class_label)))
 
-        # Precision and recall
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
 
-        # F1 score
         f1 = (
             2 * (precision * recall) / (precision + recall)
             if (precision + recall) > 0
@@ -104,8 +89,7 @@ def precision_recall_f1(
         precisions.append(precision)
         recalls.append(recall)
         f1_scores.append(f1)
-        weights.append(tp + fn)  # Number of true instances
-        # The enum is directly callable
+        weights.append(tp + fn)
         average_fn = average.value if isinstance(average, AverageStrategy) else average
         avg_precision = average_fn(precisions, weights)
         avg_recall = average_fn(recalls, weights)

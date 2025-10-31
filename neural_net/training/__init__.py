@@ -15,6 +15,14 @@ from .lr_schedulers import (
 from .regularizers import L2Regularizer
 from .trainer import Trainer
 
+# Try importing PyTorch trainer (optional dependency)
+try:
+    from .trainer_pytorch import TrainerPyTorch
+    _PYTORCH_AVAILABLE = True
+except ImportError:
+    TrainerPyTorch = None
+    _PYTORCH_AVAILABLE = False
+
 __all__ = [
     "Trainer",
     "LRScheduler",
@@ -33,3 +41,7 @@ __all__ = [
     "RegularizerConfig",
     "EarlyStoppingConfig",
 ]
+
+# Add PyTorch exports if available
+if _PYTORCH_AVAILABLE:
+    __all__.append("TrainerPyTorch")

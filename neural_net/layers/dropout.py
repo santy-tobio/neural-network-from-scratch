@@ -11,14 +11,11 @@ class Dropout(Layer):
         self.drop_prob = drop_prob
 
     def forward(self, x: cp.ndarray):
-        # Randomly drop units during training
         self.mask = (cp.random.rand(*x.shape) > self.drop_prob).astype(cp.float32)
-        return x * self.mask / (1.0 - self.drop_prob)  # Scale to keep expected value
+        return x * self.mask / (1.0 - self.drop_prob)
 
     def evaluate(self, x: cp.ndarray) -> cp.ndarray:
-        return x  # No dropout during evaluation
+        return x
 
     def backward(self, prev_grad: cp.ndarray):
-        return (
-            prev_grad * self.mask / (1.0 - self.drop_prob)
-        )  # Scale gradient accordingly
+        return prev_grad * self.mask / (1.0 - self.drop_prob)

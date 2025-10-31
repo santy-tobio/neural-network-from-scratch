@@ -1,0 +1,164 @@
+{
+  "noise_levels": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "models": {
+    "M0 (Baseline)": [
+      {
+        "noise_level": 0.0,
+        "accuracy": 0.8745021765305178,
+        "f1_macro": 0.8392445811888662,
+        "cross_entropy": 0.38616985207247684
+      },
+      {
+        "noise_level": 0.1,
+        "accuracy": 0.8003642987249545,
+        "f1_macro": 0.740368232124033,
+        "cross_entropy": 0.6510603587631283
+      },
+      {
+        "noise_level": 0.2,
+        "accuracy": 0.5221079929610077,
+        "f1_macro": 0.45453625662249636,
+        "cross_entropy": 2.398964713506623
+      },
+      {
+        "noise_level": 0.3,
+        "accuracy": 0.25979438732981386,
+        "f1_macro": 0.22655951274699432,
+        "cross_entropy": 5.534536485317531
+      },
+      {
+        "noise_level": 0.4,
+        "accuracy": 0.12133617362847704,
+        "f1_macro": 0.1069480285689844,
+        "cross_entropy": 8.815204125980365
+      },
+      {
+        "noise_level": 0.5,
+        "accuracy": 0.0649069185884968,
+        "f1_macro": 0.052026994138760094,
+        "cross_entropy": 11.354403565136707
+      }
+    ],
+    "M1g (Best Custom)": [
+      {
+        "noise_level": 0.0,
+        "accuracy": 0.8858263097774073,
+        "f1_macro": 0.8572531724903607,
+        "cross_entropy": 0.33684904302349844
+      },
+      {
+        "noise_level": 0.1,
+        "accuracy": 0.774357074496002,
+        "f1_macro": 0.7202977437500563,
+        "cross_entropy": 0.6795855422613568
+      },
+      {
+        "noise_level": 0.2,
+        "accuracy": 0.39951221018184063,
+        "f1_macro": 0.3600744027926095,
+        "cross_entropy": 3.0168009944624674
+      },
+      {
+        "noise_level": 0.3,
+        "accuracy": 0.1744002963786237,
+        "f1_macro": 0.15346805135036945,
+        "cross_entropy": 6.4818990967708485
+      },
+      {
+        "noise_level": 0.4,
+        "accuracy": 0.08978419931462443,
+        "f1_macro": 0.0728487662647951,
+        "cross_entropy": 9.675851616841559
+      },
+      {
+        "noise_level": 0.5,
+        "accuracy": 0.05492266370288043,
+        "f1_macro": 0.039948718786065,
+        "cross_entropy": 12.092769507752003
+      }
+    ],
+    "M2 (PyTorch)": [
+      {
+        "noise_level": 0.0,
+        "accuracy": 0.883578771881078,
+        "f1_macro": 0.8556386011183784,
+        "cross_entropy": 0.34661391377449036
+      },
+      {
+        "noise_level": 0.1,
+        "accuracy": 0.7611805748510388,
+        "f1_macro": 0.6970864852770339,
+        "cross_entropy": 0.76207435131073
+      },
+      {
+        "noise_level": 0.2,
+        "accuracy": 0.325491648914822,
+        "f1_macro": 0.31737592339212384,
+        "cross_entropy": 4.054174423217773
+      },
+      {
+        "noise_level": 0.3,
+        "accuracy": 0.09129079065172424,
+        "f1_macro": 0.10020023441998359,
+        "cross_entropy": 9.757394790649414
+      },
+      {
+        "noise_level": 0.4,
+        "accuracy": 0.03772652897409774,
+        "f1_macro": 0.03852800513785557,
+        "cross_entropy": 14.268463134765625
+      },
+      {
+        "noise_level": 0.5,
+        "accuracy": 0.023278071069124138,
+        "f1_macro": 0.022566421829152767,
+        "cross_entropy": 16.525510787963867
+      }
+    ],
+    "M3b (Best PyTorch)": [
+      {
+        "noise_level": 0.0,
+        "accuracy": 0.8882590843135438,
+        "f1_macro": 0.8580881429048104,
+        "cross_entropy": 0.3122268617153168
+      },
+      {
+        "noise_level": 0.1,
+        "accuracy": 0.8759531968756753,
+        "f1_macro": 0.8387058355977569,
+        "cross_entropy": 0.389568030834198
+      },
+      {
+        "noise_level": 0.2,
+        "accuracy": 0.7034361396684264,
+        "f1_macro": 0.6538108844246242,
+        "cross_entropy": 1.0318422317504883
+      },
+      {
+        "noise_level": 0.3,
+        "accuracy": 0.3776728103485536,
+        "f1_macro": 0.35760473643173274,
+        "cross_entropy": 2.522217273712158
+      },
+      {
+        "noise_level": 0.4,
+        "accuracy": 0.15826001049674293,
+        "f1_macro": 0.1486291002750629,
+        "cross_entropy": 4.365133285522461
+      },
+      {
+        "noise_level": 0.5,
+        "accuracy": 0.07486030070081195,
+        "f1_macro": 0.06274213451711627,
+        "cross_entropy": 5.989517688751221
+      }
+    ]
+  }
+}

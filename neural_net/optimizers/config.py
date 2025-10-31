@@ -20,11 +20,9 @@ class OptimizerConfig:
     type: OptimizerType = OptimizerType.SGD
     learning_rate: float = 0.001
 
-    # SGD-specific
     momentum: float = 0.0
     nesterov: bool = False
 
-    # Adam-specific
     beta1: float = 0.9
     beta2: float = 0.999
     epsilon: float = 1e-8

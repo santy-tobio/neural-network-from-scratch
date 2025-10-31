@@ -1,0 +1,23 @@
+{
+  "name": "M1d",
+  "description": "Adam + L2 + Early Stopping (patience=10)",
+  "config": {
+    "hidden_layers": [
+      128,
+      64
+    ],
+    "dropout_rate": 0.0,
+    "optimizer": "<class 'neural_net.optimizers.sgd.SGD'>",
+    "learning_rate": 0.001,
+    "momentum": 0.9,
+    "batch_size": 512,
+    "epochs": 100,
+    "use_l2": true,
+    "l2_lambda": 0.01,
+    "early_stopping": true
+  },
+  "test_metrics": null,
+  "train_time_seconds": 131.74866199493408,
+  "epochs_completed": 30,
+  "timestamp": "2025-10-30 17:18:55"
+}

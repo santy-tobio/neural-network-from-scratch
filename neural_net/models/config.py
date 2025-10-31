@@ -11,21 +11,17 @@ class ModelConfig:
     Defines the structure and activation functions of the neural network.
     """
 
-    # Architecture
-    hidden_layers: list[int]  # e.g., [128, 64] for 2 hidden layers
+    hidden_layers: list[int]
 
-    # Activations
     activation: LayerType = LayerType.RELU
     output_activation: LayerType = LayerType.SOFTMAX
 
-    dropout_rate: float | None = None  # None to disable, or value in (0, 1)
+    dropout_rate: float | None = None
 
-    # Input/output dimensions (typically inferred from data)
     input_dim: int | None = None
     output_dim: int | None = None
 
     def __post_init__(self):
-        # Architecture validation
         assert len(self.hidden_layers) > 0, "Must have at least one hidden layer"
         assert all(
             units > 0 for units in self.hidden_layers

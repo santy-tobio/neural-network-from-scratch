@@ -31,6 +31,10 @@ dev = [
     "ipython>=8.12.0",
     "jupyter>=1.0.0",
 ]
+pytorch = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+]
 
 [project.scripts]
 neural-net-train = "scripts.train:main"
@@ -93,6 +97,7 @@ module = [
     "matplotlib.*",
     "seaborn.*",
     "tqdm.*",
+    "torch.*",
 ]
 ignore_missing_imports = true
 

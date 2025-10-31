@@ -1,0 +1,17 @@
+{
+  "name": "M3b",
+  "description": "Best PyTorch model - M3b",
+  "framework": "PyTorch",
+  "config": {
+    "hidden_layers": [
+      400,
+      400
+    ],
+    "activation": "silu"
+  },
+  "test_metrics": {
+    "accuracy": 0.8882590843135438,
+    "f1_macro": 0.8580881429048104,
+    "cross_entropy": 0.3122268617153168
+  }
+}

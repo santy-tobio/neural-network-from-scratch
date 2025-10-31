@@ -7,5 +7,4 @@ from .config import OptimizerConfig
 def create_optimizer(config: OptimizerConfig) -> BaseOptimizer:
     """Create an optimizer instance from configuration."""
     optimizer_class = config.type.value
-    # Specific from_config methods handle different parameters
     return optimizer_class.from_config(config)

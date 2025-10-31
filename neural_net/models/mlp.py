@@ -24,19 +24,15 @@ class MLP(BaseMLP):
 
         self.layers: list[Layer] = []
 
-        # Build hidden layers: [input_dim] + hidden_layers
         layer_sizes = [input_dim] + hidden_layers
 
-        # Add hidden layers with activation
         for i in range(len(layer_sizes) - 1):
             self.layers.append(Linear(layer_sizes[i], layer_sizes[i + 1]))
             self.layers.append(activation.value())
 
-            # Add dropout after activation if specified
             if dropout_rate is not None:
                 self.layers.append(Dropout(dropout_rate))
 
-        # Add output layer
         self.layers.append(Linear(layer_sizes[-1], output_dim))
         self.layers.append(output_activation.value())
 
@@ -64,6 +60,17 @@ class MLP(BaseMLP):
             if isinstance(layer, Linear):
                 gradients.append((layer.grad_weights, layer.grad_bias))
         return gradients
+
+    def get_parameters(self):
+        """
+        Return current parameters for saving.
+        Returns: list of dicts with 'weights' and 'bias' for each Linear layer
+        """
+        parameters = []
+        for layer in self.layers:
+            if isinstance(layer, Linear):
+                parameters.append({"weights": layer.weights, "bias": layer.bias})
+        return parameters
 
     def update_parameters(self, updates):
         """

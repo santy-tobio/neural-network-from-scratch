@@ -8,14 +8,9 @@ class Linear(Layer):
 
     def __init__(self, input_dim: int, output_dim: int):
         super().__init__(input_dim, output_dim)
-        # Initialize weights and biases
-        # It does not depend on batch size but gradients do, hence we set it during backward
-        # and not force set the input size as (input_dim, batch_size) here, to allow broadcasting.
-        # He initialization for ReLU networks -> https://arxiv.org/pdf/1502.01852.pdf
         self.weights = cp.random.randn(output_dim, input_dim).astype(
             cp.float32
         ) * cp.sqrt(2.0 / input_dim)
-        # Bias as a column vector [output_dim, 1] -> broadcasted during addition
         self.bias = cp.zeros((output_dim, 1), dtype=cp.float32)
 
     def forward(self, x: cp.ndarray) -> cp.ndarray:

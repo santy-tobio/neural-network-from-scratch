@@ -1,4 +1,5 @@
 import cupy as cp
+import numpy as np
 from numpy.typing import NDArray
 
 from ..models.base import BaseMLP
@@ -7,18 +8,57 @@ from .metrics import compute_metrics
 
 def evaluate_model(
     model: BaseMLP,
-    X_test: cp.ndarray,
-    y_test: cp.ndarray,
+    X_test: np.ndarray | cp.ndarray,
+    y_test: np.ndarray | cp.ndarray,
     include_confusion_matrix: bool = True,
+    batch_size: int = 2048,
 ) -> dict[str, float | NDArray]:
-    """Evaluate a model on test data."""
-    # Get predictions
-    y_pred_proba = model.predict(X_test.T)
-    y_pred = cp.argmax(y_pred_proba, axis=0)
+    """Evaluate a model on test data using batched inference.
 
-    # Compute metrics
+    X_test and y_test should be NumPy arrays (CPU).
+    Batches are moved to GPU for prediction to avoid OOM errors.
+
+    Args:
+        model: Trained MLP model
+        X_test: Test features (CPU, shape: [n_samples, n_features])
+        y_test: Test labels (CPU, shape: [n_samples])
+        include_confusion_matrix: Whether to compute confusion matrix
+        batch_size: Batch size for inference (default 2048)
+    """
+    if isinstance(X_test, cp.ndarray):
+        X_test = cp.asnumpy(X_test)
+    if isinstance(y_test, cp.ndarray):
+        y_test = cp.asnumpy(y_test)
+
+    n_samples = X_test.shape[0]
+    n_batches = (n_samples + batch_size - 1) // batch_size
+
+    all_predictions = []
+    all_proba = []
+
+    for batch in range(n_batches):
+        batch_start = batch * batch_size
+        batch_end = min((batch + 1) * batch_size, n_samples)
+
+        X_batch_cpu = X_test[batch_start:batch_end]
+        X_batch_gpu = cp.asarray(X_batch_cpu)
+        y_pred_proba_batch = model.predict(X_batch_gpu.T)
+        y_pred_batch = cp.argmax(y_pred_proba_batch, axis=0)
+
+        all_predictions.append(y_pred_batch)
+        all_proba.append(y_pred_proba_batch.T)
+
+    y_pred = cp.concatenate(all_predictions)
+    y_pred_proba = cp.concatenate(all_proba, axis=0)
+    y_pred_proba = y_pred_proba.T
+
+    y_test_gpu = cp.asarray(y_test)
+
     metrics = compute_metrics(
-        y_test, y_pred, y_pred_proba, include_confusion_matrix=include_confusion_matrix
+        y_test_gpu,
+        y_pred,
+        y_pred_proba,
+        include_confusion_matrix=include_confusion_matrix,
     )
 
     return metrics
@@ -32,13 +72,11 @@ def compare_models(results: dict[str, dict[str, float]]) -> None:
     print("MODEL COMPARISON")
     print("=" * 70)
 
-    # Determine which metrics are available
     all_metrics: set[str] = set()
     for metrics in results.values():
         all_metrics.update(metrics.keys())
-    all_metrics.discard("confusion_matrix")  # Don't print in comparison
+    all_metrics.discard("confusion_matrix")
 
-    # Print header
     metric_names = sorted(all_metrics)
     print(f"\n{'Model':<20}", end="")
     for metric in metric_names:
@@ -46,7 +84,6 @@ def compare_models(results: dict[str, dict[str, float]]) -> None:
     print()
     print("-" * (20 + 20 * len(metric_names)))
 
-    # Print each model's results
     for model_name, metrics in results.items():
         print(f"{model_name:<20}", end="")
         for metric in metric_names:

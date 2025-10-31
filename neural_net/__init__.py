@@ -8,7 +8,7 @@ optimizers (SGD, Adam), training utilities, and evaluation metrics.
 __version__ = "0.1.0"
 
 # Import key classes for convenient access
-from .data import Dataset, KFoldSplitter
+from .data import Dataset
 from .evaluation import compute_metrics, evaluate_model
 from .factory import create_training_components
 from .layers import CESoftmax, Dropout, Layer, LayerType, Linear, Relu
@@ -51,7 +51,6 @@ __all__ = [
     "EarlyStoppingConfig",
     # Data
     "Dataset",
-    "KFoldSplitter",
     # Evaluation
     "evaluate_model",
     "compute_metrics",

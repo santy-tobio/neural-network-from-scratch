@@ -1,0 +1,30 @@
+{
+  "name": "M2",
+  "description": "PyTorch baseline - matches best M1 architecture (Adam + early stopping)",
+  "framework": "PyTorch",
+  "config": {
+    "hidden_layers": [
+      400,
+      240,
+      120
+    ],
+    "activation": "relu",
+    "dropout_rate": 0.0,
+    "use_batch_norm": false,
+    "optimizer": "adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "batch_size": 512,
+    "epochs": 50,
+    "early_stopping": true,
+    "patience": 5
+  },
+  "train_time": 59.89648795127869,
+  "final_train_acc": 0.9099171118134637,
+  "final_val_acc": 0.8823347707362881,
+  "test_metrics": {
+    "accuracy": 0.883578771881078,
+    "f1_macro": 0.8556386011183784,
+    "cross_entropy": 0.34661391377449036
+  }
+}

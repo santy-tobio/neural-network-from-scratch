@@ -38,7 +38,7 @@ class SGD(BaseOptimizer):
                 v_b = self.momentum * v_b + self.learning_rate * grad_b
                 self.velocity[i] = (v_w, v_b)
                 updates.append((v_w, v_b))
-        else:  # Standard SGD
+        else:
             for grad_w, grad_b in gradients:
                 update_w = self.learning_rate * grad_w
                 update_b = self.learning_rate * grad_b
