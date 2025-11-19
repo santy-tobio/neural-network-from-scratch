@@ -81,7 +81,7 @@ The codebase is organized into modular components:
 
 ```bash
 # Clone repository
-git clone https://github.com/santy-tobio/neural-networks-from-scratch.git
+git clone https://github.com/santy-tobio/neural-network-from-scratch.git
 cd neural-networks-from-scratch
 
 # Install core dependencies
