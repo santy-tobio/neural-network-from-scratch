@@ -7,7 +7,8 @@ name = "neural-net"
 version = "0.1.0"
 description = "Neural Network implementation with MLP, optimizers, and training utilities"
 authors = [
-    {name = "Santiago Tobio", email = "your.email@example.com"}
+    {name = "Santiago Tobio", email = "stobio@udesa.edu.ar"}.
+    {name = "Matías Götz", email = "matiasgotz@udesa.edu.ar"}
 ]
 readme = "README.md"
 requires-python = ">=3.10"

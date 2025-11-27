@@ -254,6 +254,11 @@ AI Engineering Student, Universidad de San Andrés
 Buenos Aires, Argentina
 [stobio@udesa.edu.ar](mailto:stobio@udesa.edu.ar)
 
+**Matías Götz**
+Biotechnology Engineering Student, Universidad de San Andrés
+Buenos Aires, Argentina
+[matiasgotz@udesa.edu.ar](mailto:matiasgotz@udesa.edu.ar)
+
 ## License
 
 MIT License - see LICENSE file for details
